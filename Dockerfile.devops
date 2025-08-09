@@ -14,8 +14,8 @@ FROM node:alpine
 
 WORKDIR /mean-app
 
-COPY package.json yarn.lock ./
 ENV HUSKY_SKIP_INSTALL=1
+COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile --production
 
 COPY . .
