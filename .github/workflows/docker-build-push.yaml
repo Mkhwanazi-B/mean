@@ -1,0 +1,48 @@
+name: Docker Build and Push CI/CD
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set lowercase repository owner
+        run: echo "OWNER_LOWER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile.devops
+          push: true
+          tags: ghcr.io/${{ env.OWNER_LOWER }}/mean-app:${{ github.sha }}
+
+      - name: Show Docker system info
+        if: failure()
+        run: docker system info
+
+      - name: Show Docker buildx info
+        if: failure()
+        run: docker buildx inspect
+
+      - name: Show Docker build cache usage
+        if: failure()
+        run: docker buildx du
+
+      - name: List images after build
+        if: failure()
+        run: docker images
