@@ -9,7 +9,7 @@ COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile --ignore-scripts
 
 COPY . .
-RUN yarn build --prod
+RUN yarn build:prod
 
 # Stage 2: Build Node.js backend
 FROM node:alpine
